@@ -5,7 +5,6 @@
 #include <wx/textctrl.h>
 #include <wx/window.h>
 #include <wx/frame.h>
-#include <wx/object.h> 
 #include <wx/log.h>
 #include <wx/base64.h>
 #include <wx/choice.h>
@@ -20,6 +19,9 @@ znControllerUi::znControllerUi()
     wxLogDebug(wxT("<<< znControllerUi::znControllerUi() >>>"));
 
     InitializeUiControls();
+
+    // Check if there is any user message during application start up.
+    // If not initialize it with some random message.
 
     wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_USER_MESSAGE), wxTextCtrl);
 
@@ -93,14 +95,6 @@ void znControllerUi::SetStatusText(wxString message)
 }
 
 znControllerUi::~znControllerUi()
-{
-}
-
-void znControllerUi::OnQuit(wxCommandEvent& event)
-{
-}
-
-void znControllerUi::OnAbout(wxCommandEvent& event)
 {
 }
 
@@ -454,8 +448,6 @@ void znControllerUi::OnBtnClearStatusMessage(wxCommandEvent& event)
 }
 
 wxBEGIN_EVENT_TABLE(znControllerUi, wxEvtHandler)
-    EVT_MENU(ID_ZN_QUIT, znControllerUi::OnQuit)
-    EVT_MENU(ID_ZN_ABOUT, znControllerUi::OnAbout)
     EVT_CLOSE(znControllerUi::OnClose)
 
     EVT_BUTTON(ID_ZN_BTN_SEND_MESSAGE, znControllerUi::OnBtnSendMessage)

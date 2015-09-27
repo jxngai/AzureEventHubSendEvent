@@ -21,8 +21,6 @@ public:
     void SetStatusText(wxString);
 
 private:
-    void OnQuit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void OnBtnSendMessage(wxCommandEvent& event);
     void OnBtnSetSampleMessage(wxCommandEvent& event);

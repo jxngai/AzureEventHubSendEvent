@@ -79,6 +79,7 @@ znModel::~znModel()
 {
     wxLogDebug(wxT("<<< znModel::~znModel() >>>"));
 
+    // Save all options into a physical ini file.
     SaveUserOptions();
 
     delete m_ini_file;
