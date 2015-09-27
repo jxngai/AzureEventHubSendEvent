@@ -1,14 +1,19 @@
 # AzureEventHubSendEvent
 This is an utility to send event to Azure Event Hub.
 
-# Architecture
-This is a real C++ application (without .Net) written to send event to Azure event hub.
+![Azure Event Hub Send Event](http://www.justuke.com/images/github/azureeventhubsendevent_01.png)
 
-The application calcualtes the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp.
+# Architecture
+This is a real C++ application (without .Net) written to send event to Azure event hub. Currently, the application is only built for Windows. But I believe it can be built on Linux.
+
+The application calcualtes the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp. Right now the signature is set to expire 1 minute after its creation. Please refers to [Shared Access Signature Authentication with Service Bus](https://msdn.microsoft.com/en-us/library/dn170477.aspx) for details.
+
+Since the calculated HMAC-SHA256 is displayed at the status message area of the application, you may use this application as an utility to calculate HMAC-SHA256 signature as well.
 
 # Dependencies
-** wxWidgets 3.0.2 compiled as Unicode static linked library.
-** OpenSSL compiled as static linked library.
-** LibCurl compiled as static linked library.
+* wxWidgets 3.0.2 compiled as Unicode static linked library.
+* OpenSSL 1.0.2 compiled as static linked library.
+* LibCurl 7.44 compiled as static linked library.
 
-# User Interface
+
+
