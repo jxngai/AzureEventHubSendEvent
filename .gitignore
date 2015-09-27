@@ -8,9 +8,9 @@
 *.sln.docstates
 
 # Build results
-[Dd]ebug/
+AzureEventHubSendEvent/[Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
+AzureEventHubSendEvent/[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
