@@ -15,5 +15,5 @@ Since the calculated HMAC-SHA256 is displayed at the status message area of the 
 * OpenSSL 1.0.2 compiled as static linked library.
 * LibCurl 7.44 compiled as static linked library.
 
-
-
+# Tools
+* Visual Studio 2013 on Windows
