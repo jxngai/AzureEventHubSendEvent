@@ -229,7 +229,8 @@ void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
     // Add a time offset so that the HMAC SHA256 signature will expire in near future
     // 1 minute later in this case
 
-    wxDateTime time_0 = wxDateTime::UNow() + wxTimeSpan::Seconds(60 * 60 * 24 * 365 * 2);
+    // wxDateTime time_0 = wxDateTime::UNow() + wxTimeSpan::Seconds(60 * 60 * 24 * 365 * 2);
+    wxDateTime time_0 = wxDateTime::UNow() + wxTimeSpan::Seconds(60 * 1);
 
     time_t params_seconds = time_0.GetTicks();
 
