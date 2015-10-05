@@ -70,6 +70,7 @@ znThreadSendEventQpid::ExitCode znThreadSendEventQpid::Entry()
                 m_qpid_message = NULL;
             }
 
+            // Send an event to udpate the Message Delivery Status at the UI.
             wxThreadEvent *my_event = new wxThreadEvent(wxEVT_THREAD, ID_ZN_EVENT_SEND_EVENT_THREAD_STATUS_UPDATE);
             my_event->SetInt(status);
             znSingleton::GetInstance<znControllerUi>().QueueEvent(my_event);

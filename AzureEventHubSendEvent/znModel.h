@@ -2,10 +2,18 @@
 #define ZNMODEL_H
 
 #include "znSingleton.h"
+#include "znConstants.h"
 
 #include <wx/fileconf.h>
 
 #include <map>
+
+class znIniProperty
+{
+public:
+    wxString    m_name;
+    wxString    m_default_value;
+};
 
 class znModel : public znSingleton
 {
@@ -34,8 +42,6 @@ public:
 private:
     wxString                        m_ini_file_name;
     wxFileConfig                   *m_ini_file;
-
-    std::map<int, wxString>         m_options_enum_to_name;
 };
 
 #endif

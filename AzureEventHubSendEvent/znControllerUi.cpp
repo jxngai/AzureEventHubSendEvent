@@ -567,23 +567,8 @@ void znControllerUi::OnBtnAmqpsSendMessage(wxCommandEvent& event)
 
     znSingleton::GetInstance<znThreadSendEventQpid>().SendQpidMessage(amqps_url, ampqs_content);
 
-    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_STATUS_MESSAGE), wxTextCtrl);
-
-    if (text_control != NULL)
-    {
-        // wxString status_message_org = text_control->GetValue();
-
-        wxString message = m_status_message_current;
-
-        message += "\nStatus Code = " + wxString::Format("%d", m_status_code);
-
-        if (m_status_message_accumulated != wxEmptyString)
-        {
-            message += m_status_message_accumulated;
-        }
-
-        text_control->SetValue(message);
-    }
+    wxThreadEvent null_event;
+    OnAmqpsSendEvenThreadStatusUpdate(null_event);
 }
 
 void znControllerUi::OnBtnAmqpsSetSampleMessage(wxCommandEvent& event)
@@ -624,8 +609,12 @@ void znControllerUi::OnAmqpsSendEvenThreadStatusUpdate(wxThreadEvent& event)
     if (text_control != NULL)
     {
         // wxString status_message_org = text_control->GetValue();
+        int status = 0;
 
-        int status = event.GetInt();
+        if (event.GetId() != wxEVT_NULL)
+        {
+            status = event.GetInt();
+        }
 
         if (status != m_status_code)
         {
