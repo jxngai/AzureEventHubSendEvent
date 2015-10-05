@@ -1,3 +1,4 @@
+#include "common.h"
 #include "znModel.h"
 #include "znConstants.h"
 
@@ -9,11 +10,17 @@ znModel::znModel()
     : m_ini_file(NULL)
 {
     // Mapping the ENUM to its string value.
-    m_options_enum_to_name[ID_ZN_TXT_SERVICE_BUS_NAMESPACE] = "Service_Bus_Namespace";
-    m_options_enum_to_name[ID_ZN_TXT_EVENT_HUB_NAME] = "Event_Hub_Name";
-    m_options_enum_to_name[ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME] = "Shared_Access_Policy_Name";
-    m_options_enum_to_name[ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY] = "Shared_Access_Policy_Key";
-    m_options_enum_to_name[ID_ZN_TXT_USER_MESSAGE] = "User_Message";
+    m_options_enum_to_name[ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE] = "HTTP_Service_Bus_Namespace";
+    m_options_enum_to_name[ID_ZN_TXT_HTTPS_EVENT_HUB_NAME] = "HTTP_Event_Hub_Name";
+    m_options_enum_to_name[ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME] = "HTTP_Shared_Access_Policy_Name";
+    m_options_enum_to_name[ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY] = "HTTP_Shared_Access_Policy_Key";
+    m_options_enum_to_name[ID_ZN_TXT_HTTPS_USER_MESSAGE] = "HTTP_User_Message";
+
+    m_options_enum_to_name[ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE] = "AMQPS_Service_Bus_Namespace";
+    m_options_enum_to_name[ID_ZN_TXT_AMQPS_EVENT_HUB_NAME] = "AMQPS_Event_Hub_Name";
+    m_options_enum_to_name[ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME] = "AMQPS_Shared_Access_Policy_Name";
+    m_options_enum_to_name[ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY] = "AMQPS_Shared_Access_Policy_Key";
+    m_options_enum_to_name[ID_ZN_TXT_AMQPS_USER_MESSAGE] = "AMQPS_User_Message";
 
     wxString folder = wxStandardPaths::Get().GetAppDocumentsDir() + wxFileName::GetPathSeparator() + "Zailor" + wxFileName::GetPathSeparator();
     wxFileName::Mkdir(folder, 0777, wxPATH_MKDIR_FULL);
@@ -33,29 +40,55 @@ znModel::znModel()
             m_ini_file = new wxFileConfig(input_stream);
 
             // Initialize the missing options.
-            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_SERVICE_BUS_NAMESPACE]) == false)
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE]) == false)
             {
-                SetUserOption(ID_ZN_TXT_SERVICE_BUS_NAMESPACE, wxT("zailorbus"));
+                SetUserOption(ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE, wxT("zailorbus"));
             }
 
-            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_EVENT_HUB_NAME]) == false)
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_HTTPS_EVENT_HUB_NAME]) == false)
             {
-                SetUserOption(ID_ZN_TXT_EVENT_HUB_NAME, wxT("mydevices"));
+                SetUserOption(ID_ZN_TXT_HTTPS_EVENT_HUB_NAME, wxT("mydevices"));
             }
 
-            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME]) == false)
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME]) == false)
             {
-                SetUserOption(ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
+                SetUserOption(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
             }
 
-            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY]) == false)
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY]) == false)
             {
-                SetUserOption(ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
+                SetUserOption(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
             }
 
-            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_USER_MESSAGE]) == false)
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_HTTPS_USER_MESSAGE]) == false)
             {
-                SetUserOption(ID_ZN_TXT_USER_MESSAGE, wxEmptyString);
+                SetUserOption(ID_ZN_TXT_HTTPS_USER_MESSAGE, wxEmptyString);
+            }
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE]) == false)
+            {
+                SetUserOption(ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE, wxT("zailorbus"));
+            }
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_AMQPS_EVENT_HUB_NAME]) == false)
+            {
+                SetUserOption(ID_ZN_TXT_AMQPS_EVENT_HUB_NAME, wxT("mydevices"));
+            }
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME]) == false)
+            {
+                SetUserOption(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
+            }
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY]) == false)
+            {
+                SetUserOption(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
+            }
+
+            if (m_ini_file->Exists(m_options_enum_to_name[ID_ZN_TXT_AMQPS_USER_MESSAGE]) == false)
+            {
+                SetUserOption(ID_ZN_TXT_AMQPS_USER_MESSAGE, wxEmptyString);
             }
         }
     }
@@ -67,12 +100,19 @@ znModel::znModel()
         m_ini_file = new wxFileConfig();
 
         // Set initial values since the ini file has been newly created.
-        SetUserOption(ID_ZN_TXT_SERVICE_BUS_NAMESPACE, wxT("zailorbus")); // K_DEFAULT_WEB_SOCKET_PORT_NUMBER
-        SetUserOption(ID_ZN_TXT_EVENT_HUB_NAME, wxT("mydevices"));
+        SetUserOption(ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE, wxT("zailorbus")); // K_DEFAULT_WEB_SOCKET_PORT_NUMBER
+        SetUserOption(ID_ZN_TXT_HTTPS_EVENT_HUB_NAME, wxT("mydevices"));
 
-        SetUserOption(ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
-        SetUserOption(ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
-        SetUserOption(ID_ZN_TXT_USER_MESSAGE, wxEmptyString);
+        SetUserOption(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
+        SetUserOption(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
+        SetUserOption(ID_ZN_TXT_HTTPS_USER_MESSAGE, wxEmptyString);
+
+        SetUserOption(ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE, wxT("zailorbus")); // K_DEFAULT_WEB_SOCKET_PORT_NUMBER
+        SetUserOption(ID_ZN_TXT_AMQPS_EVENT_HUB_NAME, wxT("mydevices"));
+
+        SetUserOption(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME, wxT("myname"));
+        SetUserOption(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY, wxT("ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="));
+        SetUserOption(ID_ZN_TXT_AMQPS_USER_MESSAGE, wxEmptyString);
     }
 }
 znModel::~znModel()

@@ -1,6 +1,8 @@
-#include "znConstants.h"
+#include "common.h"
 #include "znControllerUi.h"
+#include "znConstants.h"
 #include "znModel.h"
+#include "znThreadSendEventQpid.h"
 
 #include <wx/textctrl.h>
 #include <wx/window.h>
@@ -23,7 +25,7 @@ znControllerUi::znControllerUi()
     // Check if there is any user message during application start up.
     // If not initialize it with some random message.
 
-    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_USER_MESSAGE), wxTextCtrl);
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_USER_MESSAGE), wxTextCtrl);
 
     if (text_control != NULL)
     {
@@ -33,22 +35,31 @@ znControllerUi::znControllerUi()
         if (message == wxEmptyString)
         {
             wxCommandEvent event;
-            OnBtnSetSampleMessage(event);
+            OnBtnHttpsSetSampleMessage(event);
         }
     }
+}
+
+znControllerUi::~znControllerUi()
+{
 }
 
 void znControllerUi::InitializeUiControls()
 {
     // This routine is meant to be called from znApp after wxFrame has been created.
-    // It is to initialized some widgets with user values stored in the ini file.
+    // It is to initialize some widgets with user values stored in the ini file.
 
     int enum_list[] = {
-        ID_ZN_TXT_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_EVENT_HUB_NAME,
-        ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_USER_MESSAGE
+        ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE,
+        ID_ZN_TXT_HTTPS_EVENT_HUB_NAME,
+        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME,
+        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY,
+        ID_ZN_TXT_HTTPS_USER_MESSAGE,
+        ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE,
+        ID_ZN_TXT_AMQPS_EVENT_HUB_NAME,
+        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME,
+        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY,
+        ID_ZN_TXT_AMQPS_USER_MESSAGE
     };
 
     for (int ix = 0; ix < sizeof(enum_list) / sizeof(int); ix++)
@@ -94,20 +105,21 @@ void znControllerUi::SetStatusText(wxString message)
     }
 }
 
-znControllerUi::~znControllerUi()
-{
-}
-
 void znControllerUi::OnClose(wxCloseEvent& event)
 {
     // Save all the user's options into the database.
 
     int enum_list[] = {
-        ID_ZN_TXT_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_EVENT_HUB_NAME,
-        ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_USER_MESSAGE
+        ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE,
+        ID_ZN_TXT_HTTPS_EVENT_HUB_NAME,
+        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME,
+        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY,
+        ID_ZN_TXT_HTTPS_USER_MESSAGE,
+        ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE,
+        ID_ZN_TXT_AMQPS_EVENT_HUB_NAME,
+        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME,
+        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY,
+        ID_ZN_TXT_AMQPS_USER_MESSAGE
     };
 
     for (int ix = 0; ix < sizeof(enum_list) / sizeof(int); ix++)
@@ -168,19 +180,19 @@ static size_t CurlReadCallback(void *ptr, size_t size, size_t nmemb, void *userp
     if (size*nmemb < 1)
         return 0;
 
-    if (obj->m_post_data.length() > 0)
+    if (obj->m_curl_post_data.length() > 0)
     {
-        *(char *)ptr = obj->m_post_data[0];     /* copy one single byte */
-        obj->m_post_data.erase(0, 1);
+        *(char *)ptr = obj->m_curl_post_data[0];     /* copy one single byte */
+        obj->m_curl_post_data.erase(0, 1);
         return 1;                               /* we return 1 byte at a time! */
     }
 
     return 0;                                   /* no more data left to deliver */
 }
 
-void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
+void znControllerUi::OnBtnHttpsSendMessage(wxCommandEvent& event)
 {
-    wxLogDebug("<<< znControllerUi::OnBtnSendMessage >>>");
+    wxLogDebug("<<< znControllerUi::OnBtnHttpsSendMessage >>>");
 
     // Take the current time stamp.
     wxString status_message = wxDateTime::Now().Format(wxT("Time : %Y-%m-%d %H:%M:%S"));
@@ -193,19 +205,19 @@ void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
 
     wxTextCtrl *text_control;
 
-    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_SERVICE_BUS_NAMESPACE), wxTextCtrl);
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE), wxTextCtrl);
 
     if (text_control != NULL) arg_service_bus_name = text_control->GetValue();
 
-    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_EVENT_HUB_NAME), wxTextCtrl);
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_EVENT_HUB_NAME), wxTextCtrl);
 
     if (text_control != NULL) arg_event_hub_name = text_control->GetValue();
 
-    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_SHARED_ACCESS_POLICY_NAME), wxTextCtrl);
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME), wxTextCtrl);
 
     if (text_control != NULL) arg_shared_access_policy_name = text_control->GetValue();
 
-    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY), wxTextCtrl);
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY), wxTextCtrl);
 
     if (text_control != NULL) arg_shared_access_key = text_control->GetValue();
 
@@ -360,19 +372,19 @@ void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
         // Setup the content of the body.
         ////////////////////////////////////////////////////////
 
-        text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_USER_MESSAGE), wxTextCtrl);
+        text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_USER_MESSAGE), wxTextCtrl);
 
         if (text_control != NULL)
         {
-            m_post_data = text_control->GetValue();
+            m_curl_post_data = text_control->GetValue();
 
-            if (m_post_data == wxEmptyString)
+            if (m_curl_post_data == wxEmptyString)
             {
                 wxMessageBox("No data to send. Aborting !", ZN_APP_TITLE, wxOK | wxICON_INFORMATION, NULL);
                 return;
             }
 
-            status_message += "\n" + m_post_data;
+            status_message += "\n" + m_curl_post_data;
         }
 
         ////////////////////////////////////////////////////////
@@ -398,7 +410,7 @@ void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
 
         status_message += "\nStatus Code : " + std::to_string(http_code);
 
-        text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_STATUS_MESSAGE), wxTextCtrl);
+        text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_STATUS_MESSAGE), wxTextCtrl);
 
         if (text_control != NULL)
         {
@@ -417,11 +429,11 @@ void znControllerUi::OnBtnSendMessage(wxCommandEvent& event)
         curl_easy_cleanup(curl);
     }
 
-    // Will only reach here after all the data in m_post_data has been sent.
+    // Will only reach here after all the data in m_curl_post_data has been sent.
     curl_global_cleanup();
 }
 
-void znControllerUi::OnBtnSetSampleMessage(wxCommandEvent& event)
+void znControllerUi::OnBtnHttpsSetSampleMessage(wxCommandEvent& event)
 {
     srand(time(NULL));
     int id = 1 + (rand() % 50);
@@ -429,30 +441,222 @@ void znControllerUi::OnBtnSetSampleMessage(wxCommandEvent& event)
 
     wxString value = wxString::Format("{ \"DeviceId\":%02d, \"Temperature\":%02d }", id, temperature);
 
-    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_USER_MESSAGE), wxTextCtrl);
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_USER_MESSAGE), wxTextCtrl);
 
     if (text_control != NULL) text_control->SetValue(value);
 }
 
-void znControllerUi::OnBtnClearMessage(wxCommandEvent& event)
+void znControllerUi::OnBtnHttpsClearMessage(wxCommandEvent& event)
 {
-    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_USER_MESSAGE), wxTextCtrl);
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_USER_MESSAGE), wxTextCtrl);
 
     if (text_control != NULL) text_control->Clear();
 }
 
-void znControllerUi::OnBtnClearStatusMessage(wxCommandEvent& event)
+void znControllerUi::OnBtnHttpsClearStatusMessage(wxCommandEvent& event)
 {
-    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_STATUS_MESSAGE), wxTextCtrl);
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HTTPS_STATUS_MESSAGE), wxTextCtrl);
 
     if (text_control != NULL) text_control->Clear();
+}
+
+void znControllerUi::OnBtnAmqpsSendMessage(wxCommandEvent& event)
+{
+    wxLogDebug("<<< znControllerUi::OnBtnAmqpsSendMessage >>>");
+
+    if (m_status_message_current != wxEmptyString)
+    {
+        m_status_message_accumulated = m_status_message_current + "\nStatus Code = " + wxString::Format("%d", m_status_code) + m_status_message_accumulated;
+    }
+
+    if (m_status_message_accumulated != wxEmptyString)
+    {
+        m_status_message_accumulated = "\n+-------------------------------------------+\n" + m_status_message_accumulated;
+    }
+
+    m_status_message_current = wxEmptyString;
+
+    // Take the current time stamp.
+    m_status_message_current = wxDateTime::Now().Format(wxT("Time : %Y-%m-%d %H:%M:%S"));
+
+    // Read all settings from the UI.
+    wxString arg_service_bus_name;
+    wxString arg_event_hub_name;
+    wxString arg_shared_access_policy_name;
+    wxString arg_shared_access_key;
+    wxString arg_user_message;
+
+    wxTextCtrl *text_control;
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE), wxTextCtrl);
+
+    if (text_control != NULL) arg_service_bus_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_EVENT_HUB_NAME), wxTextCtrl);
+
+    if (text_control != NULL) arg_event_hub_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME), wxTextCtrl);
+
+    if (text_control != NULL) arg_shared_access_policy_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY), wxTextCtrl);
+
+    if (text_control != NULL) arg_shared_access_key = text_control->GetValue();
+
+    arg_service_bus_name.Trim();
+    arg_event_hub_name.Trim();
+    arg_shared_access_policy_name.Trim();
+    arg_shared_access_key.Trim();
+
+    arg_shared_access_key.Replace(wxT("="), wxT("%3d"));
+    arg_shared_access_key.Replace(wxT("/"), wxT("%2f"));
+    arg_shared_access_key.Replace(wxT("+"), wxT("%2b"));
+
+    if (arg_service_bus_name == wxEmptyString || arg_event_hub_name == wxEmptyString ||
+        arg_shared_access_policy_name == wxEmptyString || arg_shared_access_key == wxEmptyString)
+    {
+        // Error.
+        wxMessageBox("One of the inputs is blank. Aborting !", ZN_APP_TITLE, wxOK | wxICON_INFORMATION, NULL);
+        return;
+    }
+
+    m_status_code = 0;
+
+    ////////////////////////////////////////////////////////
+    // Setup the URL
+    ////////////////////////////////////////////////////////
+
+    std::string amqps_url;
+
+    amqps_url = "amqps://" + arg_shared_access_policy_name + ":";
+    amqps_url += arg_shared_access_key + "@";
+    amqps_url += arg_service_bus_name.ToUTF8();
+    amqps_url += ".servicebus.windows.net/";
+    amqps_url += arg_event_hub_name.ToUTF8();
+
+    m_status_message_current += "\n" + amqps_url;
+
+    wxString str(amqps_url);
+    str.Replace(wxT("%"), wxT("%%"));
+    str.Truncate(4096);
+    wxLogDebug(str);
+
+    ////////////////////////////////////////////////////////
+    // Setup the content of the body.
+    ////////////////////////////////////////////////////////
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_USER_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL)
+    {
+        arg_user_message = text_control->GetValue();
+
+        if (arg_user_message == wxEmptyString)
+        {
+            wxMessageBox("No data to send. Aborting !", ZN_APP_TITLE, wxOK | wxICON_INFORMATION, NULL);
+            return;
+        }
+
+        m_status_message_current += "\n" + arg_user_message;
+    }
+
+    std::string ampqs_content;
+
+    ampqs_content = arg_user_message.ToUTF8();
+
+    znSingleton::GetInstance<znThreadSendEventQpid>().SendQpidMessage(amqps_url, ampqs_content);
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_STATUS_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL)
+    {
+        // wxString status_message_org = text_control->GetValue();
+
+        wxString message = m_status_message_current;
+
+        message += "\nStatus Code = " + wxString::Format("%d", m_status_code);
+
+        if (m_status_message_accumulated != wxEmptyString)
+        {
+            message += m_status_message_accumulated;
+        }
+
+        text_control->SetValue(message);
+    }
+}
+
+void znControllerUi::OnBtnAmqpsSetSampleMessage(wxCommandEvent& event)
+{
+    srand(time(NULL));
+    int id = 1 + (rand() % 50);
+    int temperature = (rand() % 100);
+
+    wxString value = wxString::Format("{ \"DeviceId\":%02d, \"Temperature\":%02d }", id, temperature);
+
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_USER_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL) text_control->SetValue(value);
+}
+
+void znControllerUi::OnBtnAmqpsClearMessage(wxCommandEvent& event)
+{
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_USER_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL) text_control->Clear();
+}
+
+void znControllerUi::OnBtnAmqpsClearStatusMessage(wxCommandEvent& event)
+{
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_STATUS_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL) text_control->Clear();
+
+    m_status_code = 0;
+    m_status_message_current.clear();
+    m_status_message_accumulated.clear();
+}
+
+void znControllerUi::OnAmqpsSendEvenThreadStatusUpdate(wxThreadEvent& event)
+{
+    wxTextCtrl* text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_AMQPS_STATUS_MESSAGE), wxTextCtrl);
+
+    if (text_control != NULL)
+    {
+        // wxString status_message_org = text_control->GetValue();
+
+        int status = event.GetInt();
+
+        if (status != m_status_code)
+        {
+            m_status_code = status;
+
+            wxString message = m_status_message_current;
+
+            message += "\nStatus Code = " + wxString::Format("%d", m_status_code);
+
+            if (m_status_message_accumulated != wxEmptyString)
+            {
+                message += m_status_message_accumulated;
+            }
+
+            text_control->SetValue(message);
+        }
+    }
 }
 
 wxBEGIN_EVENT_TABLE(znControllerUi, wxEvtHandler)
     EVT_CLOSE(znControllerUi::OnClose)
 
-    EVT_BUTTON(ID_ZN_BTN_SEND_MESSAGE, znControllerUi::OnBtnSendMessage)
-    EVT_BUTTON(ID_ZN_BTN_SET_SAMPLE_MESSAGE, znControllerUi::OnBtnSetSampleMessage)
-    EVT_BUTTON(ID_ZN_BTN_CLEAR_MESSAGE, znControllerUi::OnBtnClearMessage)
-    EVT_BUTTON(ID_ZN_BTN_CLEAR_STATUS_MESSAGE, znControllerUi::OnBtnClearStatusMessage)
+    EVT_BUTTON(ID_ZN_BTN_HTTPS_SEND_MESSAGE, znControllerUi::OnBtnHttpsSendMessage)
+    EVT_BUTTON(ID_ZN_BTN_HTTPS_SET_SAMPLE_MESSAGE, znControllerUi::OnBtnHttpsSetSampleMessage)
+    EVT_BUTTON(ID_ZN_BTN_HTTPS_CLEAR_MESSAGE, znControllerUi::OnBtnHttpsClearMessage)
+    EVT_BUTTON(ID_ZN_BTN_HTTPS_CLEAR_STATUS_MESSAGE, znControllerUi::OnBtnHttpsClearStatusMessage)
+
+    EVT_BUTTON(ID_ZN_BTN_AMQPS_SEND_MESSAGE, znControllerUi::OnBtnAmqpsSendMessage)
+    EVT_BUTTON(ID_ZN_BTN_AMQPS_SET_SAMPLE_MESSAGE, znControllerUi::OnBtnAmqpsSetSampleMessage)
+    EVT_BUTTON(ID_ZN_BTN_AMQPS_CLEAR_MESSAGE, znControllerUi::OnBtnAmqpsClearMessage)
+    EVT_BUTTON(ID_ZN_BTN_AMQPS_CLEAR_STATUS_MESSAGE, znControllerUi::OnBtnAmqpsClearStatusMessage)
+
+    EVT_THREAD(ID_ZN_EVENT_SEND_EVENT_THREAD_STATUS_UPDATE, znControllerUi::OnAmqpsSendEvenThreadStatusUpdate)
 wxEND_EVENT_TABLE()

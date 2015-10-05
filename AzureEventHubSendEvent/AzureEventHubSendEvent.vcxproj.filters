@@ -33,6 +33,12 @@
     <ClCompile Include="znApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="znNotebook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="znThreadSendEventQpid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="znModel.h">
@@ -56,5 +62,19 @@
     <ClInclude Include="znFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="znNotebook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="znThreadSendEventQpid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="appresource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
