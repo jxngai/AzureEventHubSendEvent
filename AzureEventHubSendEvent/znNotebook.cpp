@@ -12,12 +12,14 @@
 #include <wx/stattext.h>
 #include <wx/statbmp.h>
 #include <wx/textctrl.h>
+#include <wx/valnum.h>
 
 znNotebook::znNotebook(znFrame *const frame, wxPanel* panel)
     : wxNotebook(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize), m_frame(frame)
 {
     ConstructTab_HTTPS();
     ConstructTab_AMQPS();
+    ConstructTab_Hmac_Generator();
     ConstructTab_About();
 
     SetSelection(0);
@@ -403,6 +405,175 @@ void znNotebook::ConstructTab_AMQPS()
     panel_sizer->Add(
         static_box_sizer,
         4,                                               // Stretchable OR not stretchable.
+        wxALIGN_CENTER_HORIZONTAL | wxEXPAND | wxALL,    // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        8);
+
+    panel->Layout();
+}
+
+void znNotebook::ConstructTab_Hmac_Generator()
+{
+    // wxWindow *parent;
+
+    ////////////////////////////////////////////////////////
+    // Panel
+    ////////////////////////////////////////////////////////
+
+    wxPanel* panel = new wxPanel(this);
+    AddPage(panel, wxT("HMAC Generator"), true);
+
+    ////////////////////////////////////////////////////////
+    // Sizer
+    ////////////////////////////////////////////////////////
+
+    wxBoxSizer *panel_sizer = new wxBoxSizer(wxVERTICAL);
+    panel->SetSizer(panel_sizer);
+
+    ////////////////////////////////////////////////////////
+    // Common Assets
+    ////////////////////////////////////////////////////////
+
+    wxStaticBoxSizer * static_box_sizer;
+    wxBoxSizer *row_sizer_inner;
+    wxBoxSizer *row_sizer_outter;
+
+    wxBoxSizer *col_sizer_inner;
+
+    row_sizer_outter = new wxBoxSizer(wxHORIZONTAL);
+
+    ////////////////////////////////////////////////////////
+    // Event Hub Settings
+    ////////////////////////////////////////////////////////
+
+    static_box_sizer = new wxStaticBoxSizer(new wxStaticBox(panel, wxID_ANY, wxT("Event Hub")), wxVERTICAL);
+
+    row_sizer_inner = new wxBoxSizer(wxHORIZONTAL);
+
+    row_sizer_inner->Add(new wxStaticText(panel, wxID_ANY, wxT("Service Bus Namespace")), 1, wxALL | wxEXPAND, 2);
+    row_sizer_inner->Add(new wxTextCtrl(panel, ID_ZN_TXT_HMAC_SERVICE_BUS_NAMESPACE), 1, wxALL | wxEXPAND, 2);
+
+    static_box_sizer->Add(
+        row_sizer_inner,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    row_sizer_inner = new wxBoxSizer(wxHORIZONTAL);
+
+    row_sizer_inner->Add(new wxStaticText(panel, wxID_ANY, wxT("Event Hub Name")), 1, wxALL | wxEXPAND, 2);
+    row_sizer_inner->Add(new wxTextCtrl(panel, ID_ZN_TXT_HMAC_EVENT_HUB_NAME), 1, wxALL | wxEXPAND, 2);
+
+    static_box_sizer->Add(
+        row_sizer_inner,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    row_sizer_outter->Add(
+        static_box_sizer,
+        1,                                               // Stretchable OR not stretchable.
+        wxALIGN_CENTER_HORIZONTAL | wxALL,    // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        0);                                              // The surrounding padding. Only effective with wxALL present.
+
+    row_sizer_outter->AddSpacer(4);
+
+    ////////////////////////////////////////////////////////
+    // Credential Settings
+    ////////////////////////////////////////////////////////
+
+    static_box_sizer = new wxStaticBoxSizer(new wxStaticBox(panel, wxID_ANY, wxT("Credential")), wxVERTICAL);
+
+    row_sizer_inner = new wxBoxSizer(wxHORIZONTAL);
+
+    row_sizer_inner->Add(new wxStaticText(panel, wxID_ANY, wxT("Shared Access Policy Name")), 1, wxALL | wxEXPAND, 2);
+    row_sizer_inner->Add(new wxTextCtrl(panel, ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_NAME), 1, wxALL | wxEXPAND, 2);
+
+    static_box_sizer->Add(
+        row_sizer_inner,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    row_sizer_inner = new wxBoxSizer(wxHORIZONTAL);
+
+    row_sizer_inner->Add(new wxStaticText(panel, wxID_ANY, wxT("Shared Access Policy Key")), 1, wxALL | wxEXPAND, 2);
+    row_sizer_inner->Add(new wxTextCtrl(panel, ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_KEY), 1, wxALL | wxEXPAND, 2);
+
+
+    static_box_sizer->Add(
+        row_sizer_inner,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    row_sizer_inner = new wxBoxSizer(wxHORIZONTAL);
+
+    row_sizer_inner->Add(new wxStaticText(panel, wxID_ANY, wxT("TTL in Seconds")), 1, wxALL | wxEXPAND, 2);
+    row_sizer_inner->Add(new wxTextCtrl(panel, ID_ZN_TXT_HMAC_TTL, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxIntegerValidator<int>()), 1, wxALL | wxEXPAND, 2);
+
+    static_box_sizer->Add(
+        row_sizer_inner,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    row_sizer_outter->Add(
+        static_box_sizer,
+        1,                                                  // Stretchable OR not stretchable.
+        wxALIGN_CENTER_HORIZONTAL | wxALL,                  // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        0);                                                 // The surrounding padding. Only effective with wxALL present.
+
+    panel_sizer->Add(
+        row_sizer_outter,
+        0,                                                  // Stretchable OR not stretchable.
+        wxALIGN_CENTER_HORIZONTAL | wxEXPAND | wxALL,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        8);                                                 // The surrounding padding. Only effective with wxALL present.
+
+    ////////////////////////////////////////////////////////
+    // Message Container
+    ////////////////////////////////////////////////////////
+
+    static_box_sizer = new wxStaticBoxSizer(new wxStaticBox(panel, wxID_ANY, wxT("HMAC Signature")), wxHORIZONTAL);
+
+    wxTextCtrl *text_control = new wxTextCtrl(panel, ID_ZN_TXT_HMAC_SIGNATURE);
+    text_control->SetEditable(false);
+
+    static_box_sizer->Add(
+        text_control,
+        1,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    col_sizer_inner = new wxBoxSizer(wxVERTICAL);
+
+    col_sizer_inner->Add(
+        new wxButton(panel, ID_ZN_BTN_HMAC_SIGNATURE_GENERATE, wxT("Generate")),
+        0,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        2);                     // The surrounding padding. Only effective with wxALL present.
+
+    col_sizer_inner->Add(
+        new wxButton(panel, ID_ZN_BTN_HMAC_SIGNATURE_COPY, wxT("Copy")),
+        0,                      // Stretchable OR not stretchable.
+        wxALL | wxEXPAND,       // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        2);                     // The surrounding padding. Only effective with wxALL present.
+
+    static_box_sizer->Add(
+        col_sizer_inner,
+        0,                      // Stretchable OR not stretchable.
+        wxALL,                  // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
+        5                       // The surrounding padding. Only effective with wxALL present.
+        );
+
+    panel_sizer->Add(
+        static_box_sizer,
+        0,                                               // Stretchable OR not stretchable.
         wxALIGN_CENTER_HORIZONTAL | wxEXPAND | wxALL,    // wxALL | wxEXPAND | wxALIGN_CENTER_HORIZONTAL
         8);
 

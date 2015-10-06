@@ -77,12 +77,50 @@ std::map<int, znIniProperty> g_ini_property =
             "AMQPS_User_Message",
             wxEmptyString
         }
+    },
+    {
+        ID_ZN_TXT_HMAC_SERVICE_BUS_NAMESPACE,
+        {
+            "HMAC_Service_Bus_Namespace",
+            "zailorbus"
+        }
+    },
+    {
+        ID_ZN_TXT_HMAC_EVENT_HUB_NAME,
+        {
+            "HMAC_Event_Hub_Name",
+            "mydevices"
+        }
+    },
+    {
+        ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_NAME,
+        {
+            "HMAC_Shared_Access_Policy_Name",
+            "myname"
+        }
+    },
+    {
+        ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_KEY,
+        {
+            "HMAC_Shared_Access_Policy_Key",
+            "ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJxxx/vMEKk3Tb5ao="
+        }
+    },
+    {
+        ID_ZN_TXT_HMAC_TTL,
+        {
+            "HMAC_TTL",
+            "3600"
+        }
     }
+
 };
 
 znModel::znModel()
     : m_ini_file(NULL)
 {
+    // Use ini file to save all user settings.
+
     wxString folder = wxStandardPaths::Get().GetAppDocumentsDir() + wxFileName::GetPathSeparator() + "Zailor" + wxFileName::GetPathSeparator();
     wxFileName::Mkdir(folder, 0777, wxPATH_MKDIR_FULL);
 
@@ -91,7 +129,7 @@ znModel::znModel()
 
     if (::wxFileExists(m_ini_file_name) == true)
     {
-        // An ini file has been created before.
+        // An ini file is found, it has been created before.
         // Read its content.
 
         wxFileInputStream input_stream(m_ini_file_name);
@@ -141,21 +179,14 @@ znModel::~znModel()
     wxLogDebug(wxT("<<< znModel::~znModel() >>>"));
 
     // Save all options into a physical ini file.
-    SaveUserOptions();
-
-    delete m_ini_file;
-}
-
-void znModel::SaveUserOptions()
-{
-    // This is to write the user options actually into the hard disk.
-
     wxFileOutputStream output_stream(m_ini_file_name);
 
     if (output_stream.IsOk() == true)
     {
         m_ini_file->Save(output_stream);
     }
+
+    delete m_ini_file;
 }
 
 wxString znModel::GetUserOption(int key)

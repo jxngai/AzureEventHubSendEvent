@@ -12,6 +12,7 @@
 #include <wx/choice.h>
 #include <wx/checkbox.h>
 #include <wx/msgdlg.h>
+#include <wx/clipbrd.h>
 
 #include <openssl/hmac.h>
 #include <curl/curl.h>
@@ -46,29 +47,19 @@ znControllerUi::~znControllerUi()
 
 void znControllerUi::InitializeUiControls()
 {
-    // This routine is meant to be called from znApp after wxFrame has been created.
+    // This routine is meant to be called after wxFrame has been created.
     // It is to initialize some widgets with user values stored in the ini file.
 
-    int enum_list[] = {
-        ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_HTTPS_EVENT_HUB_NAME,
-        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_HTTPS_USER_MESSAGE,
-        ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_AMQPS_EVENT_HUB_NAME,
-        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_AMQPS_USER_MESSAGE
-    };
-
-    for (int ix = 0; ix < sizeof(enum_list) / sizeof(int); ix++)
+    for (std::map<int, znIniProperty>::const_iterator iter = g_ini_property.begin(); iter != g_ini_property.end(); iter++)
     {
-        wxWindow *window = wxWindow::FindWindowById(enum_list[ix]);
+        int key = iter->first;
+        znIniProperty value = iter->second;
+
+        wxWindow *window = wxWindow::FindWindowById(key);
 
         if (window == NULL) continue;
 
-        wxString value = znSingleton::GetInstance<znModel>().GetUserOption(enum_list[ix]).c_str();
+        wxString user_option = znSingleton::GetInstance<znModel>().GetUserOption(key).c_str();
 
         wxCheckBox * checkbox = wxDynamicCast(window, wxCheckBox);
         wxTextCtrl * textctrl = wxDynamicCast(window, wxTextCtrl);
@@ -76,7 +67,7 @@ void znControllerUi::InitializeUiControls()
 
         if (checkbox != NULL)
         {
-            if (value == wxT("yes"))
+            if (user_option == wxT("yes"))
             {
                 checkbox->SetValue(true);
             }
@@ -87,11 +78,11 @@ void znControllerUi::InitializeUiControls()
         }
         else if (textctrl != NULL)
         {
-            textctrl->SetValue(value);
+            textctrl->SetValue(user_option);
         }
         else if (choice != NULL)
         {
-            choice->SetStringSelection(value);
+            choice->SetStringSelection(user_option);
         }
     }
 }
@@ -108,55 +99,46 @@ void znControllerUi::SetStatusText(wxString message)
 void znControllerUi::OnClose(wxCloseEvent& event)
 {
     // Save all the user's options into the database.
+    // Note that it does not write the options into the physical ini file.
+    // Instead that is done by the destructor of znModel.
 
-    int enum_list[] = {
-        ID_ZN_TXT_HTTPS_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_HTTPS_EVENT_HUB_NAME,
-        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_HTTPS_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_HTTPS_USER_MESSAGE,
-        ID_ZN_TXT_AMQPS_SERVICE_BUS_NAMESPACE,
-        ID_ZN_TXT_AMQPS_EVENT_HUB_NAME,
-        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_NAME,
-        ID_ZN_TXT_AMQPS_SHARED_ACCESS_POLICY_KEY,
-        ID_ZN_TXT_AMQPS_USER_MESSAGE
-    };
-
-    for (int ix = 0; ix < sizeof(enum_list) / sizeof(int); ix++)
+    for (std::map<int, znIniProperty>::const_iterator iter = g_ini_property.begin(); iter != g_ini_property.end(); iter++)
     {
-        wxWindow *window = wxWindow::FindWindowById(enum_list[ix]);
+        int key = iter->first;
+        znIniProperty value = iter->second;
 
-        if (window != NULL)
+        wxWindow *window = wxWindow::FindWindowById(key);
+
+        if (window == NULL) continue;
+
+        wxString user_option;
+
+        wxCheckBox * checkbox = wxDynamicCast(window, wxCheckBox);
+        wxTextCtrl * textctrl = wxDynamicCast(window, wxTextCtrl);
+        wxChoice * choice = wxDynamicCast(window, wxChoice);
+
+        if (checkbox != NULL)
         {
-            wxString value;
-
-            wxCheckBox * checkbox = wxDynamicCast(window, wxCheckBox);
-            wxTextCtrl * textctrl = wxDynamicCast(window, wxTextCtrl);
-            wxChoice * choice = wxDynamicCast(window, wxChoice);
-
-            if (checkbox != NULL)
+            if (checkbox->GetValue() == true)
             {
-                if (checkbox->GetValue() == true)
-                {
-                    value = wxT("yes");
-                    znSingleton::GetInstance<znModel>().SetUserOption(enum_list[ix], value);
-                }
-                else
-                {
-                    value = wxT("no");
-                    znSingleton::GetInstance<znModel>().SetUserOption(enum_list[ix], value);
-                }
+                user_option = wxT("yes");
+                znSingleton::GetInstance<znModel>().SetUserOption(key, user_option);
             }
-            else if (textctrl != NULL)
+            else
             {
-                value = textctrl->GetValue();
-                znSingleton::GetInstance<znModel>().SetUserOption(enum_list[ix], value);
+                user_option = wxT("no");
+                znSingleton::GetInstance<znModel>().SetUserOption(key, user_option);
             }
-            else if (choice != NULL)
-            {
-                value = choice->GetStringSelection();
-                znSingleton::GetInstance<znModel>().SetUserOption(enum_list[ix], value);
-            }
+        }
+        else if (textctrl != NULL)
+        {
+            user_option = textctrl->GetValue();
+            znSingleton::GetInstance<znModel>().SetUserOption(key, user_option);
+        }
+        else if (choice != NULL)
+        {
+            user_option = choice->GetStringSelection();
+            znSingleton::GetInstance<znModel>().SetUserOption(key, user_option);
         }
     }
 
@@ -527,6 +509,11 @@ void znControllerUi::OnBtnAmqpsSendMessage(wxCommandEvent& event)
     // Setup the URL
     ////////////////////////////////////////////////////////
 
+    // The correct format should be in the following formats.
+
+    // "amqps://super:ujzdCr0Y3eDWJ2d9y7Mc9XdVvSwJ%2Fxx%2FvxEKk3xb5ao%3D@zailorbus.servicebus.windows.net/mydevices"
+    // "amqps://super:n9kE5fTGzInxD61xWzPH2u2XsqRBRqKxxxxGnMLhNE%3D@zailorbus.servicebus.windows.net/myqueue"
+
     std::string amqps_url;
 
     amqps_url = "amqps://" + arg_shared_access_policy_name + ":";
@@ -634,6 +621,135 @@ void znControllerUi::OnAmqpsSendEvenThreadStatusUpdate(wxThreadEvent& event)
     }
 }
 
+void znControllerUi::OnBtnHmacGenerateSignature(wxCommandEvent& event)
+{
+    // Read all settings from the UI.
+    wxString arg_service_bus_name;
+    wxString arg_event_hub_name;
+    wxString arg_shared_access_policy_name;
+    wxString arg_shared_access_key;
+    wxString arg_ttl;
+
+    wxTextCtrl *text_control;
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_SERVICE_BUS_NAMESPACE), wxTextCtrl);
+
+    if (text_control != NULL) arg_service_bus_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_EVENT_HUB_NAME), wxTextCtrl);
+
+    if (text_control != NULL) arg_event_hub_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_NAME), wxTextCtrl);
+
+    if (text_control != NULL) arg_shared_access_policy_name = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_KEY), wxTextCtrl);
+
+    if (text_control != NULL) arg_shared_access_key = text_control->GetValue();
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_TTL), wxTextCtrl);
+
+    if (text_control != NULL) arg_ttl = text_control->GetValue();
+
+    arg_service_bus_name.Trim();
+    arg_event_hub_name.Trim();
+    arg_shared_access_policy_name.Trim();
+    arg_shared_access_key.Trim();
+    arg_ttl.Trim();
+
+    if (arg_service_bus_name == wxEmptyString || arg_event_hub_name == wxEmptyString ||
+        arg_shared_access_policy_name == wxEmptyString || arg_shared_access_key == wxEmptyString || arg_ttl == wxEmptyString)
+    {
+        // Error.
+        wxMessageBox("One of the inputs is blank. Aborting !", ZN_APP_TITLE, wxOK | wxICON_INFORMATION, NULL);
+        return;
+    }
+
+    ////////////////////////////////////////////////////////
+    // Get the current UTF time in seconds.
+    ////////////////////////////////////////////////////////
+
+    // Add a time offset so that the HMAC SHA256 signature will expire in near future
+    // 1 minute later in this case
+
+    wxDateTime time_0 = wxDateTime::UNow() + wxTimeSpan::Seconds(wxAtoi(arg_ttl));
+
+    time_t params_seconds = time_0.GetTicks();
+
+    ////////////////////////////////////////////////////////
+    // Construct the HMAC SHA256 signature.
+    ////////////////////////////////////////////////////////
+
+    // The input needed are
+
+    //  - ID_ZN_TXT_SHARED_ACCESS_POLICY_KEY
+    //  - UTC time
+
+    std::string hmac_input_key = arg_shared_access_key.mb_str(wxMBConvUTF8());
+    std::string hmac_input_data = std::string(arg_service_bus_name.mb_str(wxMBConvUTF8())) + ".servicebus.windows.net\n" + std::to_string(params_seconds);
+
+    // Initialize HMAC object.
+    HMAC_CTX ctx;
+    HMAC_CTX_init(&ctx);
+
+    // Set HMAC key.
+    HMAC_Init_ex(&ctx, hmac_input_key.c_str(), hmac_input_key.length(), EVP_sha256(), NULL);
+
+    HMAC_Update(&ctx, (unsigned char*)hmac_input_data.c_str(), hmac_input_data.length());
+
+    // Finish HMAC computation and fetch result.
+    unsigned char hmac_result[1024 * 10];
+    unsigned int hmac_result_len;
+
+    int rvalue = HMAC_Final(&ctx, hmac_result, &hmac_result_len);
+
+    // Done with HMAC object.
+    HMAC_CTX_cleanup(&ctx);
+
+    // Encode HMAC result with Base64.
+
+    wxString base64_string = wxBase64Encode(hmac_result, hmac_result_len);
+
+    // Encode the result with URL formatting.
+
+    base64_string.Replace(wxT("="), wxT("%3d"));
+    base64_string.Replace(wxT("/"), wxT("%2f"));
+    base64_string.Replace(wxT("+"), wxT("%2b"));
+
+    text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_SIGNATURE), wxTextCtrl);
+
+    if (text_control != NULL)
+    {
+        text_control->SetValue(base64_string);
+    }
+}
+
+void znControllerUi::OnBtnHmacCopySignature(wxCommandEvent& event)
+{
+    wxTextCtrl *text_control = wxDynamicCast(wxWindow::FindWindowById(ID_ZN_TXT_HMAC_SIGNATURE), wxTextCtrl);
+
+    if (text_control == NULL)
+    {
+        return;
+    }
+
+    wxString signature = text_control->GetValue();
+
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->Clear();
+        if (wxTheClipboard->AddData(new wxTextDataObject(signature)) == true)
+        {
+            // Flush will make the content available to others
+            // even when this application has ended.
+            wxTheClipboard->Flush();
+        }
+
+        wxTheClipboard->Close();
+    }
+}
+
 wxBEGIN_EVENT_TABLE(znControllerUi, wxEvtHandler)
     EVT_CLOSE(znControllerUi::OnClose)
 
@@ -648,4 +764,7 @@ wxBEGIN_EVENT_TABLE(znControllerUi, wxEvtHandler)
     EVT_BUTTON(ID_ZN_BTN_AMQPS_CLEAR_STATUS_MESSAGE, znControllerUi::OnBtnAmqpsClearStatusMessage)
 
     EVT_THREAD(ID_ZN_EVENT_SEND_EVENT_THREAD_STATUS_UPDATE, znControllerUi::OnAmqpsSendEvenThreadStatusUpdate)
+
+    EVT_BUTTON(ID_ZN_BTN_HMAC_SIGNATURE_GENERATE, znControllerUi::OnBtnHmacGenerateSignature)
+    EVT_BUTTON(ID_ZN_BTN_HMAC_SIGNATURE_COPY, znControllerUi::OnBtnHmacCopySignature)
 wxEND_EVENT_TABLE()

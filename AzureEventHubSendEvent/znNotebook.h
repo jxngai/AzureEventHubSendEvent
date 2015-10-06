@@ -12,6 +12,7 @@ public:
 private:
     void ConstructTab_HTTPS();
     void ConstructTab_AMQPS();
+    void ConstructTab_Hmac_Generator();
     void ConstructTab_About();
 
 private:

@@ -2,7 +2,6 @@
 #define ZNMODEL_H
 
 #include "znSingleton.h"
-#include "znConstants.h"
 
 #include <wx/fileconf.h>
 
@@ -15,6 +14,8 @@ public:
     wxString    m_default_value;
 };
 
+extern std::map<int, znIniProperty> g_ini_property;
+
 class znModel : public znSingleton
 {
 private:
@@ -23,8 +24,6 @@ private:
     znModel();
     wxDECLARE_NO_COPY_CLASS(znModel);
     ~znModel();
-
-    void SaveUserOptions();
 
 public:
     // User options are properties that need to be stored
