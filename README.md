@@ -18,7 +18,9 @@ This application also implemented a feature where HMAC-SHA256 can be generated w
 * wxWidgets 3.0.2 compiled as Unicode static linked library.
 * OpenSSL 1.0.2 compiled as static linked library.
 * LibCurl 7.44 compiled as static linked library.
-* qpid-proton-0.9.1.tar.gz compiled as static linked library.
+* qpid-proton-0.9.1 compiled as static linked library.
+
+For some reason, later qpid-proton-0.10 library does not work.
 
 # Tools
 * Visual Studio 2013 on Windows
