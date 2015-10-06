@@ -6,14 +6,23 @@ This is an utility to send event to Azure Event Hub.
 # Architecture
 This is a real C++ application (without .Net) written to send event to Azure event hub. Currently, the application is only built for Windows. But I believe it can be built on Linux if you have all the required libraries installed.
 
-This utility is developed using the [Microsoft Azure Send Event Rest API](https://msdn.microsoft.com/en-us/library/azure/dn790664.aspx). It calcualtes the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp. Right now the signature is set to expire 1 minute after its creation. Please refers to [Shared Access Signature Authentication with Service Bus](https://msdn.microsoft.com/en-us/library/dn170477.aspx) for details.
+There are 2 ways of sending events to Azure Event Hub.
+* Through HTTPS, port 443, based on API defined at [Microsoft Azure Send Event Rest API](https://msdn.microsoft.com/en-us/library/azure/dn790664.aspx)
+* Through AMQPS, port 5671
 
-Since the calculated HMAC-SHA256 is displayed at the status message area of the application, you may use this application as an utility to calculate HMAC-SHA256 signature as well.
+For HTTPS sending, there is a need to calcualtes the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp. Right now the signature is set to expire 1 minute after its creation. Please refers to [Shared Access Signature Authentication with Service Bus](https://msdn.microsoft.com/en-us/library/dn170477.aspx) for details.
+
+This application also implemented a feature where HMAC-SHA256 can be generated with specific TTL.
 
 # Dependencies
 * wxWidgets 3.0.2 compiled as Unicode static linked library.
 * OpenSSL 1.0.2 compiled as static linked library.
 * LibCurl 7.44 compiled as static linked library.
+* qpid-proton-0.9.1.tar.gz compiled as static linked library.
 
 # Tools
 * Visual Studio 2013 on Windows
+
+# Know Issues
+* AMQPS may not work behind company firewall
+* Unsuccessful AMQPS event sending may cause memory leak. Suspected to be QPID Proton issue.
