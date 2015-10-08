@@ -84,6 +84,7 @@
     <ClCompile Include="znSingleton.cpp" />
     <ClCompile Include="znSingletonParent.cpp" />
     <ClCompile Include="znThreadSendEventQpid.cpp" />
+    <ClCompile Include="znUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -96,6 +97,7 @@
     <ClInclude Include="znSingleton.h" />
     <ClInclude Include="znSingletonParent.h" />
     <ClInclude Include="znThreadSendEventQpid.h" />
+    <ClInclude Include="znUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="appresource.rc" />

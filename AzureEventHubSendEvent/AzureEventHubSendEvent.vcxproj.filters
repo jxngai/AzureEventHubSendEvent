@@ -39,6 +39,9 @@
     <ClCompile Include="znThreadSendEventQpid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="znUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="znModel.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="znThreadSendEventQpid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="znUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

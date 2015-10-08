@@ -93,6 +93,13 @@ std::map<int, znIniProperty> g_ini_property =
         }
     },
     {
+        ID_ZN_TXT_HMAC_PUBLISHER_NAME,
+        {
+            "HMAC_Publisher_Name",
+            "mypublisher"
+        }
+    },
+    {
         ID_ZN_TXT_HMAC_SHARED_ACCESS_POLICY_NAME,
         {
             "HMAC_Shared_Access_Policy_Name",

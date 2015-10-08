@@ -42,8 +42,10 @@ private:
 
     void OnAmqpsSendEvenThreadStatusUpdate(wxThreadEvent& event);
 
-    void OnBtnHmacGenerateSignature(wxCommandEvent& event);
     void OnBtnHmacCopySignature(wxCommandEvent& event);
+
+    void OnBtnHmacGenerateSignature(wxCommandEvent& event);
+    void OnBtnHmacClearSignature(wxCommandEvent& event);
 
 public:
     std::string         m_curl_post_data;
