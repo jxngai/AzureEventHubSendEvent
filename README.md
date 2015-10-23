@@ -10,7 +10,7 @@ There are 2 ways of sending events to Azure Event Hub.
 * Through HTTPS, port 443, based on API defined at [Microsoft Azure Send Event Rest API](https://msdn.microsoft.com/en-us/library/azure/dn790664.aspx)
 * Through AMQPS, port 5671
 
-For HTTPS sending, there is a need to calcualtes the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp. Right now the signature is set to expire 1 minute after its creation. Please refers to [Shared Access Signature Authentication with Service Bus](https://msdn.microsoft.com/en-us/library/dn170477.aspx) for details.
+For HTTPS sending, there is a need to calculates the HMAC-SHA256 signature based on the Azure's Shared Access Policy Key and a selected expiry timestamp. Right now the signature is set to expire 1 minute after its creation. Please refers to [Shared Access Signature Authentication with Service Bus](https://msdn.microsoft.com/en-us/library/dn170477.aspx) for details.
 
 This application also implemented a feature where HMAC-SHA256 can be generated with specific TTL.
 
