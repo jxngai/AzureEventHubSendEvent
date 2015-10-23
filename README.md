@@ -20,7 +20,7 @@ This application also implemented a feature where HMAC-SHA256 can be generated w
 * LibCurl 7.44 compiled as static linked library.
 * qpid-proton-0.9.1 compiled as static linked library.
 
-For some reason, later qpid-proton-0.10 library does not work.
+For some reason, the latest qpid-proton-0.10 library does not work.
 
 # Tools
 * Visual Studio 2013 on Windows
